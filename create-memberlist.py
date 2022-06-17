@@ -93,7 +93,6 @@ for person in persons_filtered:
         if relationship['relationshipTypeId'] == 1: # Kind
             child = Child()
             child.name = relationship['relative']['domainAttributes']['firstName']
-            # TODO: Missing access rights
             child_result = Person.find(from_=relationship['relative']['apiUrl'], limit=MAX_PERSONS_LIMIT)
             if len(child_result) > 0:
                 child.age = ' (' + str(age(child_result[0]['birthday'])) + ')'
