@@ -6,7 +6,7 @@ Python script to generate a member directory from Churchtools API.
 
 * Copy `.env.sample` to `.env`, and adjust to your setup.
   * See [Getting a login token](#getting-a-login-token)
-* Copy template.sample.odt to template.odt and adjust to your preferences (Use LibreOffice to modify the template).
+* Copy template.sample.odt to template.odt and adjust to your preferences (Use [LibreOffice](https://www.libreoffice.org/) to modify the template).
   * Check the [template language documentation](https://py3otemplate.readthedocs.io/)
 * Install [Python 3](https://www.python.org/)
 * Install Python dependencies:
@@ -18,7 +18,7 @@ Run `./create-memberlist.py [--filter-group=<group_id>]`
 
 The `--filter-group` param can be used to filter by a certain group in Churchtools.
 
-This will create a file `output.odt`. Use LibreOffice to preview or postprocess it, or generate a PDF of it.
+This will create a file `output.odt`. Use [LibreOffice](https://www.libreoffice.org/) to preview or postprocess it, or generate a PDF of it.
 
 You can also use the command line to generate a PDF: `libreoffice --convert-to pdf --outdir . output.odt`
 
