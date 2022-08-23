@@ -45,16 +45,20 @@ class Person(ApiBase):
     pass
 
 class Child:
-    pass
+    def __lt__(self, other):
+        return self.birthdate > other.birthdate
+
+def birthdate_str_to_date(birthdate_str):
+    return datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
 
 def age(birthdate_str):
-    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    birthdate = birthdate_str_to_date(birthdate_str)
     today = datetime.date.today()
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
     return age
 
 def format_birthdate(birthdate_str):
-    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    birthdate = birthdate_str_to_date(birthdate_str)
     return birthdate.strftime("%d.%m.%Y")
 
 # From https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
@@ -125,6 +129,7 @@ for person in persons_filtered:
             child.name = relationship['relative']['domainAttributes']['firstName']
             child_result = Person.find(from_=relationship['relative']['apiUrl'], limit=MAX_PERSONS_LIMIT)
             if len(child_result) > 0:
+                child.birthdate = birthdate_str_to_date(child_result[0]['birthday'])
                 child.age = ' (' + str(age(child_result[0]['birthday'])) + ')'
             person['children'].append(child)
         elif relationship['relationshipTypeId'] == 2: # Ehepartner
@@ -140,6 +145,9 @@ for person in persons_filtered:
                                         lastname=person['lastName'],
                                         husband_id=str(relationship['relative']['domainIdentifier']),
                                         wife_id=str(person['id']))
+
+    # Sort children by age
+    person['children'].sort()
 
 # Sort persons by their family
 persons_sorted = sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
