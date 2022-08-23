@@ -20,7 +20,7 @@ parser.add_argument("--surname-to", help="Only include surname up than this lett
 args = parser.parse_args()
 
 # Create template
-t = Template("template_gebetsblatt.odt", "gebetsblatt.odt")
+t = Template("template_prayerlist.odt", "gebetsblatt.odt")
 
 # Retrieve people
 persons = churchtoolsapi.get_persons(args.filter_group)
