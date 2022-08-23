@@ -8,12 +8,18 @@
 
 import datetime
 import io
+import pickle
 import os
 import requests
 
 from dotenv import load_dotenv
+from os.path import exists
 from PIL import Image, ImageDraw, ImageFilter
 from pyactiveresource.activeresource import ActiveResource
+
+# DEBUG MODE (cache REST API result)
+DEBUG = False
+CACHED_FILENAME = 'persons.dump'
 
 # Random limits from Churchtools API
 MAX_PERSONS_LIMIT = 500
@@ -71,6 +77,10 @@ def __make_img_round(img_bytes):
 
 
 def get_persons(filter_group_id=None):
+    if DEBUG and exists(CACHED_FILENAME):
+        with open(CACHED_FILENAME, 'rb') as f:
+            return pickle.load(f)
+
     # Get all persons
     persons_result = Person.find(from_=ApiBase._site + 'persons', limit=MAX_PERSONS_LIMIT)
     persons = persons_result[0]['data']
@@ -140,4 +150,11 @@ def get_persons(filter_group_id=None):
         person['children'].sort()
 
     # Sort persons by their family
-    return sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
+    persons_sorted = sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
+
+    # Cache result if in debug mode
+    if DEBUG:
+        with open(CACHED_FILENAME, 'wb') as f:
+            pickle.dump(persons_sorted, f)
+
+    return persons_sorted
