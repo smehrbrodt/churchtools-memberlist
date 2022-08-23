@@ -17,10 +17,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--filter-group", help="Filter for group ID")
 parser.add_argument("--surname-from", help="Only include surname larger than this letter(s)")
 parser.add_argument("--surname-to", help="Only include surname up than this letter(s)")
+parser.add_argument("--template", default="template_prayerlist.odt", help="custom template file (odt)")
+parser.add_argument("--output", default="prayerlist.odt", help="output file (odt)")
 args = parser.parse_args()
 
 # Create template
-t = Template("template_prayerlist.odt", "gebetsblatt.odt")
+t = Template(args.template, args.output)
 
 # Retrieve people
 persons = churchtoolsapi.get_persons(args.filter_group)
