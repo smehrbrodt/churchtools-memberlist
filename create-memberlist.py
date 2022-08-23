@@ -8,10 +8,12 @@
 
 import argparse
 import datetime
+import io
 import os
 import requests
 
 from dotenv import load_dotenv
+from PIL import Image, ImageDraw, ImageFilter
 from py3o.template import Template
 from pyactiveresource.activeresource import ActiveResource
 
@@ -55,6 +57,26 @@ def format_birthdate(birthdate_str):
     birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
     return birthdate.strftime("%d.%m.%Y")
 
+# From https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
+def mask_circle_transparent(pil_img, blur_radius, offset=0):
+    offset = blur_radius * 2 + offset
+    mask = Image.new("L", pil_img.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((offset, offset, pil_img.size[0] - offset, pil_img.size[1] - offset), fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
+
+    result = pil_img.copy()
+    result.putalpha(mask)
+
+    return result
+
+def make_img_round(img_bytes):
+    im = Image.open(io.BytesIO(img_bytes))
+    im_round = mask_circle_transparent(im, 0, 2)
+    img_byte_arr = io.BytesIO()
+    im_round.save(img_byte_arr, format='PNG')
+    return img_byte_arr.getvalue()
+
 # Get all persons
 persons_result = Person.find(from_=ApiBase._site + 'persons', limit=MAX_PERSONS_LIMIT)
 persons = persons_result[0]['data']
@@ -85,7 +107,8 @@ for person in persons_filtered:
         img = open(default_img_path,'rb')
         person['image'] = bytes(img.read())
 
-    # TODO: Make image round https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
+    # Make image round
+    person['image'] = make_img_round(person['image'])
 
     # Format birthdate
     person['birthday'] = format_birthdate(person['birthday'])
