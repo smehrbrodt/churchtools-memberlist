@@ -51,6 +51,10 @@ def age(birthdate_str):
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
     return age
 
+def format_birthdate(birthdate_str):
+    birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+    return birthdate.strftime("%d.%m.%Y")
+
 # Get all persons
 persons_result = Person.find(from_=ApiBase._site + 'persons', limit=MAX_PERSONS_LIMIT)
 persons = persons_result[0]['data']
@@ -82,6 +86,9 @@ for person in persons_filtered:
         person['image'] = bytes(img.read())
 
     # TODO: Make image round https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
+
+    # Format birthdate
+    person['birthday'] = format_birthdate(person['birthday'])
 
     # Relationships (Spouse, children)
     relationships_url = ApiBase._site + 'persons/{id}/relationships'.format(id=person['id'])
