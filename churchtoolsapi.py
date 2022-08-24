@@ -19,7 +19,7 @@ from pyactiveresource.activeresource import ActiveResource
 
 # DEBUG MODE (cache REST API result)
 DEBUG = False
-CACHED_FILENAME = 'persons.dump'
+CACHED_FILENAME = "persons_{group_id}.dump"
 
 # Random limits from Churchtools API
 MAX_PERSONS_LIMIT = 500
@@ -42,16 +42,25 @@ class Child:
     def __lt__(self, other):
         return self.birthdate > other.birthdate
 
+    def __str__(self):
+        return self.name + self.age
+
 def __birthdate_str_to_date(birthdate_str):
+    if not birthdate_str:
+        return datetime.datetime(1900, 1, 1)
     return datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
 
 def __age(birthdate_str):
+    if not birthdate_str:
+        return ""
     birthdate = __birthdate_str_to_date(birthdate_str)
     today = datetime.date.today()
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
     return age
 
 def __format_birthdate(birthdate_str):
+    if not birthdate_str:
+        return ""
     birthdate = __birthdate_str_to_date(birthdate_str)
     return birthdate.strftime("%d.%m.%Y")
 
@@ -76,9 +85,12 @@ def __make_img_round(img_bytes):
     return img_byte_arr.getvalue()
 
 
-def get_persons(filter_group_id=None):
-    if DEBUG and exists(CACHED_FILENAME):
-        with open(CACHED_FILENAME, 'rb') as f:
+def get_persons(filter_group_id=None, filter_role_id=None, include_images=False):
+    filter_group_id = int(filter_group_id) if filter_group_id else None
+    filter_role_id = int(filter_role_id) if filter_role_id else None
+    filename = CACHED_FILENAME.format(group_id=filter_group_id)
+    if DEBUG and exists(filename):
+        with open(filename, 'rb') as f:
             return pickle.load(f)
 
     # Get all persons
@@ -97,6 +109,11 @@ def get_persons(filter_group_id=None):
             for group_person in persons_in_group:
                 if group_person['personId'] == person['id']:
                     found = True
+
+                if filter_role_id:
+                    found = found and group_person['groupTypeRoleId'] == filter_role_id
+
+                if found:
                     break
             if found:
                 persons_filtered.append(person)
@@ -104,15 +121,16 @@ def get_persons(filter_group_id=None):
     # Postprocessing
     for person in persons_filtered:
         # Profile pic
-        if person['imageUrl']:
-            person['image'] = requests.get(person['imageUrl']).content
-        else:
-            default_img_path = os.path.realpath(os.path.dirname(__file__)) + '/images/placeholder.png'
-            img = open(default_img_path,'rb')
-            person['image'] = bytes(img.read())
+        if include_images:
+            if person['imageUrl']:
+                person['image'] = requests.get(person['imageUrl']).content
+            else:
+                default_img_path = os.path.realpath(os.path.dirname(__file__)) + '/images/placeholder.png'
+                img = open(default_img_path,'rb')
+                person['image'] = bytes(img.read())
 
-        # Make image round
-        person['image'] = __make_img_round(person['image'])
+            # Make image round
+            person['image'] = __make_img_round(person['image'])
 
         # Format birthdate
         person['birthday'] = __format_birthdate(person['birthday'])
@@ -123,6 +141,10 @@ def get_persons(filter_group_id=None):
         relationships = relationships_result[0]['data']
         person['children'] = []
         person['family_id'] = person['lastName']
+        person['familyEnd'] = False
+        personHasSpouse = False
+        if not relationships:
+            person['familyEnd'] = True
         for relationship in relationships:
             if relationship['relationshipTypeId'] == 1: # Kind
                 child = Child()
@@ -133,6 +155,7 @@ def get_persons(filter_group_id=None):
                     child.age = ' (' + str(__age(child_result[0]['birthday'])) + ')'
                 person['children'].append(child)
             elif relationship['relationshipTypeId'] == 2: # Ehepartner
+                personHasSpouse = True
                 person['spouse'] = relationship['relative']['domainIdentifier']
                 # Create family_id for sorting (last name, ID of husband & wife)
                 if person['sexId'] == 1: # Male
@@ -145,16 +168,23 @@ def get_persons(filter_group_id=None):
                                             lastname=person['lastName'],
                                             husband_id=str(relationship['relative']['domainIdentifier']),
                                             wife_id=str(person['id']))
+                    person['familyEnd'] = True
+
+        if not personHasSpouse:
+            person['familyEnd'] = True
 
         # Sort children by age
         person['children'].sort()
+
+        # All children in one line
+        person['allChildren'] = ', '.join(person['children'])
 
     # Sort persons by their family
     persons_sorted = sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
 
     # Cache result if in debug mode
     if DEBUG:
-        with open(CACHED_FILENAME, 'wb') as f:
+        with open(filename, 'wb') as f:
             pickle.dump(persons_sorted, f)
 
     return persons_sorted

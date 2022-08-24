@@ -23,7 +23,7 @@ args = parser.parse_args()
 t = Template(args.template, args.output)
 
 # Sort persons by their family
-persons_sorted = churchtoolsapi.get_persons(args.filter_group)
+persons_sorted = churchtoolsapi.get_persons(args.filter_group, include_images=True)
 
 data = dict(persons=persons_sorted)
 t.render(data)

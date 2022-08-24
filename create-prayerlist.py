@@ -25,7 +25,7 @@ args = parser.parse_args()
 t = Template(args.template, args.output)
 
 # Retrieve people
-persons = churchtoolsapi.get_persons(args.filter_group)
+persons = churchtoolsapi.get_persons(args.filter_group, include_images=True)
 
 if args.surname_from:
     persons = filter(lambda p : p['lastName'] >= args.surname_from, persons)
