@@ -177,7 +177,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
         person['children'].sort()
 
         # All children in one line
-        person['allChildren'] = ', '.join(person['children'])
+        person['allChildren'] = ', '.join(str(child) for child in person['children'])
 
     # Sort persons by their family
     persons_sorted = sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
