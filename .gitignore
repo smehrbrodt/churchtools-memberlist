@@ -5,4 +5,5 @@
 *.sh
 images/
 __pycache__/
-persons.dump
+persons*.dump
+.~lock*
