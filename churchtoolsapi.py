@@ -45,7 +45,7 @@ class Child:
     def __str__(self):
         return self.name + self.age
 
-def __birthdate_str_to_date(birthdate_str):
+def str_to_date(birthdate_str):
     if not birthdate_str:
         return datetime.datetime(1900, 1, 1)
     return datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
@@ -53,15 +53,15 @@ def __birthdate_str_to_date(birthdate_str):
 def __age(birthdate_str):
     if not birthdate_str:
         return ""
-    birthdate = __birthdate_str_to_date(birthdate_str)
+    birthdate = str_to_date(birthdate_str)
     today = datetime.date.today()
     age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
     return age
 
-def __format_birthdate(birthdate_str):
+def format_date(birthdate_str):
     if not birthdate_str:
         return ""
-    birthdate = __birthdate_str_to_date(birthdate_str)
+    birthdate = str_to_date(birthdate_str)
     return birthdate.strftime("%d.%m.%Y")
 
 # From https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
@@ -133,7 +133,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
             person['image'] = __make_img_round(person['image'])
 
         # Format birthdate
-        person['birthday'] = __format_birthdate(person['birthday'])
+        person['birthday'] = format_date(person['birthday'])
 
         # Relationships (Spouse, children)
         relationships_url = ApiBase._site + 'persons/{id}/relationships'.format(id=person['id'])
@@ -151,7 +151,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
                 child.name = relationship['relative']['domainAttributes']['firstName']
                 child_result = Person.find(from_=relationship['relative']['apiUrl'], limit=MAX_PERSONS_LIMIT)
                 if len(child_result) > 0:
-                    child.birthdate = __birthdate_str_to_date(child_result[0]['birthday'])
+                    child.birthdate = str_to_date(child_result[0]['birthday'])
                     child.age = ' (' + str(__age(child_result[0]['birthday'])) + ')'
                 person['children'].append(child)
             elif relationship['relationshipTypeId'] == 2: # Ehepartner
@@ -188,3 +188,49 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
             pickle.dump(persons_sorted, f)
 
     return persons_sorted
+
+class Member:
+    personId = None
+    firstName = ''
+    lastName = ''
+    present = False # Whether the person was present in the meeting
+
+    def __hash__(self):
+        return hash(self.personId)
+
+    def __eq__(self, other):
+        return self.personId == other.personId
+
+    def __lt__(self, other):
+        return self.lastName + self.firstName < other.lastName + other.firstName
+
+    def __str__(self):
+        return "{lastName} {firstName}".format(firstName = self.firstName, lastName = self.lastName)
+
+def get_group_meeting(group_id, meeting_date):
+    start_date_str = meeting_date.strftime("%Y-%m-%d")
+    # End date must be one day more than start date
+    end_date = meeting_date + datetime.timedelta(days=1)
+    end_date_str = end_date.strftime("%Y-%m-%d")
+    group_url = ApiBase._site + 'groups/{id}/meetings'.format(id=group_id)
+    meetings_in_group_result = Group.find(from_=group_url,
+        limit=1,
+        start_date=start_date_str, end_date=end_date_str)
+    meetings_in_group = meetings_in_group_result[0]['data']
+    return meetings_in_group[0]
+
+def get_meeting_members(group_id, meeting_id, filter_role_id=None):
+    url = ApiBase._site + 'groups/{groupId}/meetings/{meetingId}/members'.format(groupId=group_id, meetingId=meeting_id)
+    members_result = Group.find(from_=url)
+    members = members_result[0]['data']
+    new_members = []
+    for member in members:
+        if filter_role_id and int(member['member']['groupTypeRoleId']) != int(filter_role_id):
+            continue
+        new_member = Member()
+        new_member.personId = member['member']['personId']
+        new_member.firstName = member['member']['person']['domainAttributes']['firstName']
+        new_member.lastName = member['member']['person']['domainAttributes']['lastName']
+        new_member.present = member['status'] == 'present'
+        new_members.append(new_member)
+    return new_members
