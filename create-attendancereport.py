@@ -82,7 +82,7 @@ for nWeek in range(2):
             args.role_id_regularvisitors))
 
 ## Fetch other visitors data
-other_visitors = churchtoolsapi.get_persons(args.group_visitors, args.role_id_visitors)
+#other_visitors = churchtoolsapi.get_persons(args.group_visitors, args.role_id_visitors)
 
 # Member absences
 twoWeeksAbsentMembers = get_two_weeks_absent(meeting_members)
@@ -91,6 +91,9 @@ fourTimesInEightWeeksAbsent = get_last_eight_weeks_absent(meeting_members)
 # Regular visitors absences
 presentRegularVisitors_ = get_present(meeting_regular_visitors[0])
 twoWeeksAbsentRegularVisitors = get_two_weeks_absent(meeting_regular_visitors)
+
+# Other visitors
+other_visitors = (meeting_members_stats[0]['comment'] + meeting_regular_visitors_stats[0]['comment']).split("\n")
 
 data = dict(
     meetingDate=churchtoolsapi.format_date(args.date),
@@ -103,6 +106,7 @@ data = dict(
     presentRegularVisitors = presentRegularVisitors_,
     regularVisitorsPresentCount = meeting_regular_visitors_stats[0]['statistics']['present'],
     regularVisitorsAbsentCount = meeting_regular_visitors_stats[0]['statistics']['absent'],
-    presentVisitors = other_visitors
+    presentVisitors = meeting_regular_visitors_stats[0]['comment'].split("\n")
 )
+
 t.render(data)
