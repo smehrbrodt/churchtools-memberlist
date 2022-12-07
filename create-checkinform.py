@@ -38,8 +38,9 @@ regularvisitors_sorted = churchtoolsapi.get_persons(args.group_regularvisitors, 
 # Other visitors
 visitors_sorted = churchtoolsapi.get_persons(args.group_visitors, args.role_id_visitors)
 
-delta = relativedelta.relativedelta(days=1, weekday=relativedelta.SU)
-next_sunday = datetime.date.today() + delta
+next_sunday = datetime.date.today()
+if next_sunday.weekday() != 6: # Sunday
+    next_sunday += relativedelta.relativedelta(days=1, weekday=relativedelta.SU)
 next_sunday_date = next_sunday.strftime("%d.%m.%Y")
 
 # Highlight recent birthdays
