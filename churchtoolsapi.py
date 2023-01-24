@@ -133,8 +133,11 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
             person['image'] = __make_img_round(person['image'])
 
         # Format birthdate
-        person['birthday_date'] = str_to_date(person['birthday'])
-        person['birthday'] = format_date(person['birthday'])
+        if person['birthday']:
+            person['birthday_date'] = str_to_date(person['birthday'])
+            person['birthday'] = format_date(person['birthday'])
+        else:
+            person['birthday_date'] = None
 
         # Relationships (Spouse, children)
         relationships_url = ApiBase._site + 'persons/{id}/relationships'.format(id=person['id'])

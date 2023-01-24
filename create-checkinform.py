@@ -46,14 +46,15 @@ next_sunday_date = next_sunday.strftime("%d.%m.%Y")
 # Highlight recent birthdays
 for member in members_sorted:
     birthday = member['birthday_date']
-    birthday = birthday.replace(year=next_sunday.year)
-    delta = (next_sunday - birthday)
     birthday_highlight = ''
-    if delta.days < 7 and delta.days >= 0:
-        if (delta.days == 0):
-            birthday_highlight = "heute!"
-        else:
-            birthday_highlight = birthday.strftime("%d.%m.")
+    if birthday:
+        birthday = birthday.replace(year=next_sunday.year)
+        delta = (next_sunday - birthday)
+        if delta.days < 7 and delta.days >= 0:
+            if (delta.days == 0):
+                birthday_highlight = "heute!"
+            else:
+                birthday_highlight = birthday.strftime("%d.%m.")
     member['birthdayHighlight'] = birthday_highlight
 
 data = dict(members=members_sorted, regularvisitors=regularvisitors_sorted, visitors=visitors_sorted, nextsunday=next_sunday_date)
