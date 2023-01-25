@@ -97,9 +97,9 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
     persons_result = Person.find(from_=ApiBase._site + 'persons', limit=MAX_PERSONS_LIMIT)
     persons = persons_result[0]['data']
 
-    persons_filtered = []
     # Filter only those in current group
     if filter_group_id:
+        persons_filtered = []
         group_url = ApiBase._site + 'groups/{id}/members'.format(id=filter_group_id)
         persons_in_group_result = Group.find(from_=group_url, limit=MAX_GROUP_MEMBERS_LIMIT)
         persons_in_group = persons_in_group_result[0]['data']
@@ -117,9 +117,10 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
                     break
             if found:
                 persons_filtered.append(person)
+        persons = persons_filtered
 
     # Postprocessing
-    for person in persons_filtered:
+    for person in persons:
         # Profile pic
         if include_images:
             if person['imageUrl']:
@@ -184,7 +185,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
         person['allChildren'] = ', '.join(str(child) for child in person['children'])
 
     # Sort persons by their family
-    persons_sorted = sorted(persons_filtered, key = lambda p: (p['family_id'], p['sexId']))
+    persons_sorted = sorted(persons, key = lambda p: (p['family_id'], p['sexId']))
 
     # Cache result if in debug mode
     if DEBUG:
