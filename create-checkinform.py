@@ -22,7 +22,7 @@ parser.add_argument("--group-regularvisitors", help="Group ID where to find regu
 parser.add_argument("--role-id-regularvisitors", help="Only visitors with this role ID")
 parser.add_argument("--group-visitors", help="Group ID where to find other visitors")
 parser.add_argument("--role-id-visitors", help="Only visitors with this role ID")
-parser.add_argument("--template", default="template_checkin_form.odt", help="custom template file (odt)")
+parser.add_argument("--template", default="template_checkinform.odt", help="custom template file (odt)")
 parser.add_argument("--output", default="checkinform.odt", help="output file (odt)")
 args = parser.parse_args()
 
