@@ -1,6 +1,11 @@
-# Generate Members list from Churchtools
+# Reporting via Churchtools API
 
-Python script to generate a member directory from Churchtools API.
+Python script to create documents via Churchtools API.
+
+* Member list
+* Prayer list
+* Checkin form
+* Attendance report
 
 ## Initial Setup
 
@@ -14,13 +19,65 @@ Python script to generate a member directory from Churchtools API.
 
 ## Usage
 
-Run `./create-memberlist.py [--filter-group=<group_id>]`
+Any of the below commands will create `odt` output files.
+Use [LibreOffice](https://www.libreoffice.org/) to preview or postprocess them, or generate a PDF of it.
 
-The `--filter-group` param can be used to filter by a certain group in Churchtools.
+You can also use the command line to generate a PDF: `libreoffice --convert-to pdf --outdir . input.odt`
 
-This will create a file `output.odt`. Use [LibreOffice](https://www.libreoffice.org/) to preview or postprocess it, or generate a PDF of it.
+### Member list
 
-You can also use the command line to generate a PDF: `libreoffice --convert-to pdf --outdir . output.odt`
+Creates a membership directory.
+
+```bash
+./create-memberlist.py \
+    --filter-group <group_id> \
+    [--template template_memberlist.odt] \
+    [--output memberlist.odt]
+```
+
+The `--filter-group` param is used to filter by a certain group in Churchtools.
+
+### Prayer list
+
+Creates a prayer list (similiar to membership directory, but different layout). Can be filtered to include only part of the members using `--surname-from` and `surname-to` arguments.
+
+```bash
+./create-prayerlist.py \
+    [--surname-from <letter>] \
+    [--surname-to <letter>] \
+    [--template template_prayerlist.odt] \
+    [--output prayerlist.odt]
+```
+
+### Checkin form
+
+Create a checkin form. This assumes you have two groups: Members and regular visitors.
+The regular visitors group can be filtered to include only certain roles from that group.
+
+```bash
+./create-checkinform.py \
+    --group-members <group_id> \
+    --group-regularvisitors <group_id> \
+    --role-id-regularvisitors <role_id> \
+    [--template template_checkinform.odt] \
+    [--output checkinform.odt]
+```
+
+### Attendance report
+
+Generate an attendance report.
+
+```bash
+./create-attendancereport.py \
+    --group-members <group_id> \
+    --group-regular-visitors <group_id> \
+    --role-id-regularvisitors <role_id> \
+    --group-visitors <group_id> \
+    --role-id-visitors <role_id> \
+    --date YYYY-MM-DD \
+    [--template template_attendancereport.odt] \
+    [--output attendancereport.odt]
+```
 
 ## Getting a login token
 
