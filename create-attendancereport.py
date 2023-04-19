@@ -29,6 +29,8 @@ def is_absent(member):
     return member.present == False
 
 def get_two_weeks_absent(meeting_members):
+    if len(meeting_members) != 2:
+        return []
     thisWeekAbsent = set(filter(is_absent, meeting_members[0]))
     lastWeekAbsent = set(filter(is_absent, meeting_members[1]))
     return sorted(thisWeekAbsent.intersection(lastWeekAbsent))
@@ -65,6 +67,11 @@ meeting_members_stats = []
 for nWeek in range(8):
     meeting_date = orig_meeting_date + datetime.timedelta(weeks=-(nWeek))
     meeting = churchtoolsapi.get_group_meeting(args.group_members, meeting_date)
+    if not meeting:
+        continue
+    if not meeting['isCompleted']:
+        print("Mitglieder-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
+        exit(0)
     meeting_members_stats.append(meeting)
     meeting_members.append(churchtoolsapi.get_meeting_members(args.group_members, meeting['id']))
 
@@ -74,6 +81,12 @@ meeting_regular_visitors_stats = []
 for nWeek in range(2):
     meeting_date = orig_meeting_date + datetime.timedelta(weeks=-(nWeek))
     meeting = churchtoolsapi.get_group_meeting(args.group_regular_visitors, meeting_date)
+    if not meeting:
+        continue
+    #if not meeting['isCompleted']:
+    if True:
+        print("Regelmäßige Besucher-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
+        exit(0)
     meeting_regular_visitors_stats.append(meeting)
     meeting_regular_visitors.append(
         churchtoolsapi.get_meeting_members(

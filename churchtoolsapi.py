@@ -222,7 +222,7 @@ def get_group_meeting(group_id, meeting_date):
         limit=1,
         start_date=start_date_str, end_date=end_date_str)
     meetings_in_group = meetings_in_group_result[0]['data']
-    return meetings_in_group[0]
+    return meetings_in_group[0] if meetings_in_group else None
 
 def get_meeting_members(group_id, meeting_id, filter_role_id=None):
     url = ApiBase._site + 'groups/{groupId}/meetings/{meetingId}/members'.format(groupId=group_id, meetingId=meeting_id)
