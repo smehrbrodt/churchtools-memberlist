@@ -83,8 +83,7 @@ for nWeek in range(2):
     meeting = churchtoolsapi.get_group_meeting(args.group_regular_visitors, meeting_date)
     if not meeting:
         continue
-    #if not meeting['isCompleted']:
-    if True:
+    if not meeting['isCompleted']:
         print("Regelmäßige Besucher-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
         exit(0)
     meeting_regular_visitors_stats.append(meeting)
