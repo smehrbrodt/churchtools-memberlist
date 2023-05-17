@@ -29,7 +29,7 @@ def is_absent(member):
     return member.present == False
 
 def get_two_weeks_absent(meeting_members):
-    if len(meeting_members) != 2:
+    if len(meeting_members) < 2:
         return []
     thisWeekAbsent = set(filter(is_absent, meeting_members[0]))
     lastWeekAbsent = set(filter(is_absent, meeting_members[1]))
@@ -68,6 +68,8 @@ for nWeek in range(8):
     meeting_date = orig_meeting_date + datetime.timedelta(weeks=-(nWeek))
     meeting = churchtoolsapi.get_group_meeting(args.group_members, meeting_date)
     if not meeting:
+        print("WARNUNG: Kein Treffen für {} gefunden!".format(meeting_date.strftime("%Y-%m-%d")))
+        meeting_members.append([])
         continue
     if not meeting['isCompleted']:
         print("Mitglieder-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
