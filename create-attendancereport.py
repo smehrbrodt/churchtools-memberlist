@@ -107,7 +107,9 @@ presentRegularVisitors_ = get_present(meeting_regular_visitors[0])
 twoWeeksAbsentRegularVisitors = get_two_weeks_absent(meeting_regular_visitors)
 
 # Other visitors
-other_visitors = (meeting_members_stats[0]['comment'] + meeting_regular_visitors_stats[0]['comment']).split("\n")
+comment_members = meeting_members_stats[0]['comment'] if meeting_members_stats[0]['comment'] else ""
+comment_regular_visitors = meeting_regular_visitors_stats[0]['comment'] if meeting_regular_visitors_stats[0]['comment'] else ""
+other_visitors = (comment_members + comment_regular_visitors).split("\n")
 
 data = dict(
     meetingDate=churchtoolsapi.format_date(args.date),
