@@ -47,7 +47,7 @@ class Child:
 
 def str_to_date(birthdate_str):
     if not birthdate_str:
-        return datetime.datetime(1900, 1, 1)
+        return datetime.date(1900, 1, 1)
     return datetime.datetime.strptime(birthdate_str, "%Y-%m-%d").date()
 
 def __age(birthdate_str):
@@ -158,6 +158,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
                 if len(child_result) > 0:
                     child.birthdate = str_to_date(child_result[0]['birthday'])
                     child.age = ' (' + str(__age(child_result[0]['birthday'])) + ')'
+
                 person['children'].append(child)
             elif relationship['relationshipTypeId'] == 2: # Ehepartner
                 personHasSpouse = True
