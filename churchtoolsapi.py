@@ -151,7 +151,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
         if not relationships:
             person['familyEnd'] = True
         for relationship in relationships:
-            if relationship['relationshipTypeId'] == 1: # Kind
+            if relationship['relationshipTypeId'] == 1 and relationship['degreeOfRelationship'] == 'Kind': # Kind
                 child = Child()
                 child.name = relationship['relative']['domainAttributes']['firstName']
                 child_result = Person.find(from_=relationship['relative']['apiUrl'], limit=MAX_PERSONS_LIMIT)
