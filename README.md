@@ -14,8 +14,9 @@ Python script to create documents via Churchtools API.
 * Copy template.sample.odt to template.odt and adjust to your preferences (Use [LibreOffice](https://www.libreoffice.org/) to modify the template).
   * Check the [template language documentation](https://py3otemplate.readthedocs.io/)
 * Install [Python 3](https://www.python.org/)
+* Create a virtual env for this project, and activate the venv. [More information](https://docs.python.org/3/library/venv.html)
 * Install Python dependencies:
-  * `pip install pyactiveresource py3o.template`
+  * `pip install -r requirements.txt`
 
 ## Usage
 
