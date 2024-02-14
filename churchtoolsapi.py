@@ -179,7 +179,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
             person['familyEnd'] = True
 
         # Sort children by age
-        person['children'].sort()
+        person['children'].sort(reverse=True)
 
         # All children in one line
         person['allChildren'] = ', '.join(str(child) for child in person['children'])
