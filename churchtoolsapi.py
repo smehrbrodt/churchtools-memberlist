@@ -145,7 +145,7 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
         relationships_result = Person.find(from_=relationships_url, limit=MAX_PERSONS_LIMIT)
         relationships = relationships_result[0]['data']
         person['children'] = []
-        person['family_id'] = person['lastName']
+        person['family_id'] = "{}-{}".format(person['lastName'], person['firstName'])
         person['familyEnd'] = False
         personHasSpouse = False
         if not relationships:
@@ -162,18 +162,17 @@ def get_persons(filter_group_id=None, filter_role_id=None, include_images=False)
                 person['children'].append(child)
             elif relationship['relationshipTypeId'] == 2: # Ehepartner
                 personHasSpouse = True
-                person['spouse'] = relationship['relative']['domainIdentifier']
                 # Create family_id for sorting (last name, ID of husband & wife)
                 if person['sexId'] == 1: # Male
-                    person['family_id'] = '{lastname}-{husband_id}-{wife_id}'.format(
+                    person['family_id'] = '{lastname}-{husband_name}-{wife_name}'.format(
                                             lastname=person['lastName'],
-                                            husband_id=str(person['id']),
-                                            wife_id=str(relationship['relative']['domainIdentifier']))
+                                            husband_name=person['firstName'],
+                                            wife_name=str(relationship['relative']['domainAttributes']['firstName']))
                 else: # Female
-                    person['family_id'] = '{lastname}-{husband_id}-{wife_id}'.format(
+                    person['family_id'] = '{lastname}-{husband_name}-{wife_name}'.format(
                                             lastname=person['lastName'],
-                                            husband_id=str(relationship['relative']['domainIdentifier']),
-                                            wife_id=str(person['id']))
+                                            husband_name=str(relationship['relative']['domainAttributes']['firstName']),
+                                            wife_name=person['firstName'])
                     person['familyEnd'] = True
 
         if not personHasSpouse:
