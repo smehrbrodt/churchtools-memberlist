@@ -16,7 +16,7 @@ Python script to create documents via Churchtools API.
 * Install [Python 3](https://www.python.org/)
 * Create a virtual env for this project, and activate the venv. [More information](https://docs.python.org/3/library/venv.html)
 * Install Python dependencies:
-  * `pip install -r requirements.txt`
+  * `<path_to_venv>/bin/pip install -r requirements.txt`
 
 ## Usage
 
