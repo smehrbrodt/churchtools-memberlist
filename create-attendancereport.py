@@ -122,7 +122,7 @@ data = dict(
     presentRegularVisitors = presentRegularVisitors_,
     regularVisitorsPresentCount = meeting_regular_visitors_stats[0]['statistics']['present'],
     regularVisitorsAbsentCount = meeting_regular_visitors_stats[0]['statistics']['absent'],
-    presentVisitors = meeting_regular_visitors_stats[0]['comment'].split("\n")
+    presentVisitors = other_visitors
 )
 
 t.render(data)
