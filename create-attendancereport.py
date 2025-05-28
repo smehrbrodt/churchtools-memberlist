@@ -65,16 +65,17 @@ orig_meeting_date = churchtoolsapi.str_to_date(args.date)
 # This week = meeting_members[0], 8 weeks ago = meeting_members[7]
 meeting_members = []
 meeting_members_stats = []
+log = []
 for nWeek in range(8):
     meeting_date = orig_meeting_date + datetime.timedelta(weeks=-(nWeek))
     meeting = churchtoolsapi.get_group_meeting(args.group_members, meeting_date)
     if not meeting:
-        print("WARNUNG: Kein Treffen für {} gefunden!".format(meeting_date.strftime("%Y-%m-%d")))
+        log.append("WARNUNG: Kein Treffen für {} gefunden!".format(meeting_date.strftime("%Y-%m-%d")))
         meeting_members.append([])
         continue
     if not meeting['isCompleted']:
-        print("Mitglieder-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
-        exit(0)
+        log.append("Mitglieder-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
+        break
     meeting_members_stats.append(meeting)
     meeting_members.append(churchtoolsapi.get_meeting_members(args.group_members, meeting['id']))
 
@@ -87,8 +88,8 @@ for nWeek in range(2):
     if not meeting:
         continue
     if not meeting['isCompleted']:
-        print("Regelmäßige Besucher-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
-        exit(0)
+        log.append("Regelmäßige Besucher-Anwesenheit vom {} nicht abgeschlossen.".format(meeting_date.strftime("%Y-%m-%d")))
+        break
     meeting_regular_visitors_stats.append(meeting)
     meeting_regular_visitors.append(
         churchtoolsapi.get_meeting_members(
@@ -149,5 +150,9 @@ if (args.txt_output):
         f.write("\nAndere Besucher:\n")
         for visitor in data['presentVisitors']:
             f.write("- {}\n".format(visitor))
+        if log:
+            f.write ("\n\n** Fehler **\n")
+            for log_entry in log:
+                f.write("- {}\n".format(log_entry))
 
 t.render(data)
