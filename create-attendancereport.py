@@ -140,10 +140,10 @@ if (args.txt_output):
         f.write("\n")
         f.write("\n** Regelmäßige Besucher **")
         f.write("\n{} anwesend, {} abwesend\n".format(data['regularVisitorsPresentCount'], data['regularVisitorsAbsentCount']))
-        f.write("\nAnwesende regelmäßige Besucher:")
+        f.write("\nAnwesende regelmäßige Besucher:\n")
         for visitor in data['presentRegularVisitors']:
             f.write("- {} {}\n".format(visitor.firstName, visitor.lastName))
-        f.write("\nAbwesende regelmäßige Besucher in den letzten zwei Sonntagen:")
+        f.write("\nAbwesende regelmäßige Besucher in den letzten zwei Sonntagen:\n")
         for visitor in data['absentVisitorsLastTwoSundays']:
             f.write("- {} {}\n".format(visitor.firstName, visitor.lastName))
         f.write("\nAndere Besucher:\n")
