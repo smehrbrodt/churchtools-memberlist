@@ -23,6 +23,7 @@ parser.add_argument("--role-id-visitors", help="Only visitors with this role ID"
 parser.add_argument("--date", help="Service date. Format: YYYY-MM-DD; e.g. '2022-05-21'")
 parser.add_argument("--template", default="template_attendancereport.odt", help="custom template file (odt)")
 parser.add_argument("--output", default="attendancereport.odt", help="output file (odt)")
+parser.add_argument("--txt-output", help="output file (txt)", default=None)
 args = parser.parse_args()
 
 def is_absent(member):
@@ -124,5 +125,29 @@ data = dict(
     regularVisitorsAbsentCount = meeting_regular_visitors_stats[0]['statistics']['absent'],
     presentVisitors = other_visitors
 )
+
+if (args.txt_output):
+    with open(args.txt_output, 'w') as f:
+        f.write("=== Anwesenheitsbericht für {} ===\n".format(data['meetingDate']))
+        f.write("\n** Mitglieder **")
+        f.write("\n{} anwesend, {} abwesend\n".format(data['membersPresentCount'], data['membersAbsentCount']))
+        f.write("\nAbwesende Mitglieder in den letzten zwei Sonntagen:\n")
+        for member in data['absentLastTwoSundays']:
+            f.write("- {} {}\n".format(member.firstName, member.lastName))
+        f.write("\nHäufig abwesende Mitglieder in den letzten acht Wochen:\n")
+        for member in data['absentLastEightWeeks']:
+            f.write("- {} {} ({} Abwesenheiten)\n".format(member.firstName, member.lastName, member.absentCount))
+        f.write("\n")
+        f.write("\n** Regelmäßige Besucher **")
+        f.write("\n{} anwesend, {} abwesend\n".format(data['regularVisitorsPresentCount'], data['regularVisitorsAbsentCount']))
+        f.write("\nAnwesende regelmäßige Besucher:")
+        for visitor in data['presentRegularVisitors']:
+            f.write("- {} {}\n".format(visitor.firstName, visitor.lastName))
+        f.write("\nAbwesende regelmäßige Besucher in den letzten zwei Sonntagen:")
+        for visitor in data['absentVisitorsLastTwoSundays']:
+            f.write("- {} {}\n".format(visitor.firstName, visitor.lastName))
+        f.write("\nAndere Besucher:\n")
+        for visitor in data['presentVisitors']:
+            f.write("- {}\n".format(visitor))
 
 t.render(data)
