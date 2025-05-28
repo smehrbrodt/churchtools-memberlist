@@ -70,7 +70,7 @@ for nWeek in range(8):
     meeting_date = orig_meeting_date + datetime.timedelta(weeks=-(nWeek))
     meeting = churchtoolsapi.get_group_meeting(args.group_members, meeting_date)
     if not meeting:
-        log.append("WARNUNG: Kein Treffen für {} gefunden!".format(meeting_date.strftime("%Y-%m-%d")))
+        log.append("Kein Treffen für {} gefunden!".format(meeting_date.strftime("%Y-%m-%d")))
         meeting_members.append([])
         continue
     if not meeting['isCompleted']:
@@ -151,7 +151,7 @@ if (args.txt_output):
         for visitor in data['presentVisitors']:
             f.write("- {}\n".format(visitor))
         if log:
-            f.write ("\n\n** Fehler **\n")
+            f.write ("\n\n** Log **\n")
             for log_entry in log:
                 f.write("- {}\n".format(log_entry))
 
